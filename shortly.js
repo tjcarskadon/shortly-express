@@ -28,7 +28,7 @@ function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create',  
 function(req, res) {
   res.render('index');
 });
@@ -44,6 +44,43 @@ app.get('/login',
 function(req, res) {
   res.render('login');
 });
+
+
+app.get('/signup', 
+function(req, res) {
+  res.render('signup');
+});
+
+//post some stuff from signup here
+// app.post('/signup', 
+// function(req, res) {
+
+
+
+// });
+
+app.post('/signup', 
+function(req, res) {
+  var uri = req.body.url;
+  console.log('REQ BODY POST', req.body)
+
+  new User({ username: req.body.username}).fetch().then(function(found) {
+    if (found) {
+      //do something to tell the user they are already registered
+      res.status(200).send();
+    } else {
+
+      Users.create({
+        username: req.body.username,
+        password: req.body.password
+      })
+      .then(function(newLink) {
+        res.status(200).send();
+      }).catch(e => { throw e; });
+    }
+  });
+});
+
 
 app.post('/links', 
 function(req, res) {
