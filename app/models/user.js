@@ -18,10 +18,7 @@ var User = db.Model.extend({
     this.set('salt', salt);
 
   },
-
-  testMe: function() {
-    console.log('this did something');
-  } 
 });
 
 module.exports = User;
+

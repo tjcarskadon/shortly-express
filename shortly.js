@@ -85,8 +85,7 @@ function(req, res) {
 
   new User({ username: req.body.username}).fetch().then(function(found) {
     if (found) {
-      //do something to tell the user they are already registered
-      // console.log('signup found', found);
+   
       res.status(200).send();
     } else {
       Users.create({
@@ -113,7 +112,7 @@ function(req, res) {
   }
 
   new Link({ url: uri }).fetch().then(function(found) {
-    console.log('I am found', found);
+    
     if (found) {
       res.status(200).send(found.attributes);
     } else {
@@ -144,33 +143,23 @@ app.post('/login',
 function(req, res) {
    
 
-
   db.knex('users')
       .where('username', '=', req.body.username)
       .then(function(user) {  
-        //salt and hash the incoming password
-        //compare vid
-        var hash = bcrypt.hashSync(req.body.password, user[0].salt);
-        var fromDb = user[0].password;
-        if (fromDb === hash) {
-          req.session.log = true;
-          req.session.username = req.body.username;
-          // console.log('session', req.session);
-          res.redirect('/');
-        } else {
-          res.redirect('/login');
-        }
       
+        var fromDb = user[0].password;
+      
+        bcrypt.compare(req.body.password, fromDb, function (err, results) {
+          if (!err) {
+            req.session.log = true;
+            req.session.username = req.body.username;
+            res.redirect('/');
+          } else {
+            res.redirect('/login');
+          }
+        });
       })
       .catch(function(error) { res.redirect('/login'); });
-
-
-        //Look into why this didn't work later***********
-      //   bcrypt.compare(fromDb, hash, function (err, results) {
-      //     if (!err) {
-      //       console.log(results);
-      //     }
-      //   });
 
 
 });
