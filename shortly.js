@@ -111,8 +111,8 @@ function(req, res) {
   }
 
   new Link({ url: uri }).fetch().then(function(found) {
+      console.log('I am found', found);
     if (found) {
-      // console.log(found);
       res.status(200).send(found.attributes);
     } else {
       util.getUrlTitle(uri, function(err, title) {
@@ -153,25 +153,14 @@ function(req, res) {
         if (fromDb === hash) {
           req.session.log = true;
           req.session.username = req.body.username;
-          console.log('session', req.session);
+          // console.log('session', req.session);
           res.redirect('/');
-
-          // req.session.regenerate(function(err) { 
-          //   if (!err) {
-          //     req.session.log = true;
-          //     req.session.username = req.body.username;
-          //     console.log(req.session);
-          //     // res.writeHead({location: '/'});
-          //     // res.redirect('/');  //this passes the test but doesn't work
-          //     res.render('index');
-          //   } else { 
-          //     console.log('session did not regen');
-          //   }
-          // });
+        } else {
+          res.redirect('/login');
         }
       
       })
-      .catch(function(error) { console.log(error); });
+      .catch(function(error) { res.redirect('/login'); });
 
 
         //Look into why this didn't work later***********

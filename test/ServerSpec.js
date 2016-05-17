@@ -166,7 +166,7 @@ describe('', function() {
         });
       });
 
-      xit('Returns the same shortened code', function(done) {
+      it('Returns the same shortened code', function(done) {
         var options = {
           'method': 'POST',
           'followAllRedirects': true,
@@ -178,6 +178,7 @@ describe('', function() {
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
+          console.log('link', link);
           expect(code).to.equal(link.get('code'));
           done();
         });
@@ -213,23 +214,23 @@ describe('', function() {
 
   }); // 'Link creation'
 
-  xdescribe('Privileged Access:', function() {
+  describe('Privileged Access:', function() {
 
-    it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
+    xit('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
       });
     });
 
-    it('Redirects to login page if a user tries to create a link and is not signed in', function(done) {
+    xit('Redirects to login page if a user tries to create a link and is not signed in', function(done) {
       request('http://127.0.0.1:4568/create', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
       });
     });
 
-    it('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
+    xit('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
       request('http://127.0.0.1:4568/links', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
@@ -239,7 +240,26 @@ describe('', function() {
   }); // 'Priviledged Access'
 
   describe('Account Creation:', function() {
-
+    db.knex('users')
+      .where('username', '=', 'Svnh')
+      .del()
+      .catch(function(error) {
+        // uncomment when writing authentication tests
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
+      });
+          db.knex('users')
+      .where('username', '=', 'Phillip')
+      .del()
+      .catch(function(error) {
+        // uncomment when writing authentication tests
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
+      });
     it('Signup creates a user record', function(done) {
       var options = {
         'method': 'POST',
@@ -293,6 +313,17 @@ describe('', function() {
     beforeEach(function(done) {
       db.knex('users')
       .where('username', '=', 'Phillip')
+      .del()
+      .catch(function(error) {
+        // uncomment when writing authentication tests
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
+      });
+
+      db.knex('users')
+      .where('username', '=', 'Svnh')
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
