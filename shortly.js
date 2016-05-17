@@ -2,7 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-
+// var cookieParser = require('cookie-parser');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -10,6 +10,8 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
+var bcrypt = require('bcrypt-nodejs');
+
 
 var app = express();
 
@@ -21,7 +23,7 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-
+app.use(express.cookieParser());
 
 app.get('/', 
 function(req, res) {
@@ -49,41 +51,36 @@ function(req, res) {
 app.get('/signup', 
 function(req, res) {
   res.render('signup');
-});
+}); 
 
-//post some stuff from signup here
-// app.post('/signup', 
-// function(req, res) {
-
-
-
-// });
 
 app.post('/signup', 
 function(req, res) {
   var uri = req.body.url;
-  console.log('REQ BODY POST', req.body)
+  console.log('REQ BODY POST', req.body);
 
   new User({ username: req.body.username}).fetch().then(function(found) {
     if (found) {
       //do something to tell the user they are already registered
+      console.log('signup found', found);
       res.status(200).send();
     } else {
-
       Users.create({
         username: req.body.username,
         password: req.body.password
       })
       .then(function(newLink) {
-        res.status(200).send();
+        //need to do some redirect stuff here
+        // res.status(200).send();
+        res.redirect(301, '/');
       }).catch(e => { throw e; });
     }
   });
 });
-
-
+ 
+ 
 app.post('/links', 
-function(req, res) {
+function(req, res) { 
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -93,6 +90,7 @@ function(req, res) {
 
   new Link({ url: uri }).fetch().then(function(found) {
     if (found) {
+      // console.log(found);
       res.status(200).send(found.attributes);
     } else {
       util.getUrlTitle(uri, function(err, title) {
@@ -118,7 +116,27 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+app.post('/login', 
+function(req, res) {
+  
+  res.render('login');  //might be an issue here.  need to see what happens
 
+
+  db.knex('users')
+      .where('username', '=', req.body.username)
+      .then(function(user) {  
+        //salt and hash the incoming password
+        //compare vid
+        var hash = bcrypt.hashSync(req.body.password, user[0].salt);
+        bcrypt.compare(req.body.password, hash, function (err, results) {
+          //send the user to the index page
+        });
+      })
+      .catch(function(error) { console.log(error); });
+
+
+
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail

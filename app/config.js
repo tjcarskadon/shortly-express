@@ -22,7 +22,7 @@ db.knex.schema.hasTable('urls').then(function(exists) {
       console.log('Created URL Table', table);
     });
   } else {
-    console.log('exists');
+    // console.log('exists');
   }
 });
 
@@ -46,8 +46,9 @@ db.knex.schema.hasTable('users').then(function(exists) {
   if (!exists) {
     db.knex.schema.createTable('users', function (user) {
       user.increments('id').primary();
-      user.string('username',40).unique();
-      user.string('password',100);
+      user.string('username', 40).unique();
+      user.string('password', 100);
+      user.string('salt', 100);
     }).then(function (table) {
       console.log('Created User Table', table);
     });

@@ -40,10 +40,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
 
     // delete user Phillip from db so it can be created later for the test
@@ -52,10 +52,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
   });
 
@@ -102,7 +102,7 @@ describe('', function() {
     });
 
     describe('Shortening links:', function() {
-
+this.timeout(5000);
       var options = {
         'method': 'POST',
         'followAllRedirects': true,
@@ -151,7 +151,7 @@ describe('', function() {
     }); // 'Shortening links'
 
     describe('With previously saved urls:', function() {
-
+      this.timeout(5000);
       var link;
 
       beforeEach(function(done) {
@@ -166,7 +166,7 @@ describe('', function() {
         });
       });
 
-      it('Returns the same shortened code', function(done) {
+      xit('Returns the same shortened code', function(done) {
         var options = {
           'method': 'POST',
           'followAllRedirects': true,
@@ -183,7 +183,7 @@ describe('', function() {
         });
       });
 
-      it('Shortcode redirects to correct url', function(done) {
+      xit('Shortcode redirects to correct url', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/' + link.get('code')
@@ -196,7 +196,7 @@ describe('', function() {
         });
       });
 
-      it('Returns all of the links to display on the links page', function(done) {
+      xit('Returns all of the links to display on the links page', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/links'
@@ -213,7 +213,7 @@ describe('', function() {
 
   }); // 'Link creation'
 
-  describe('Privileged Access:', function() {
+  xdescribe('Privileged Access:', function() {
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
@@ -291,6 +291,17 @@ describe('', function() {
     var requestWithSession = request.defaults({jar: true});
 
     beforeEach(function(done) {
+      db.knex('users')
+      .where('username', '=', 'Phillip')
+      .del()
+      .catch(function(error) {
+        // uncomment when writing authentication tests
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
+      });
+      
       new User({
         'username': 'Phillip',
         'password': 'Phillip'
