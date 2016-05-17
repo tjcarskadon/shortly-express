@@ -4,7 +4,7 @@ var partials = require('express-partials');
 var bodyParser = require('body-parser');
 // var cookieParser = require('cookie-parser');
 // var cookieSession = require('cookie-session');
-var eSession = require('express-session');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -18,11 +18,11 @@ var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
 
-app.use(eSession({
+app.use(session({
   secret: 'cat',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
-  cookie: {secure: true, maxAge: 60000, httpOnly: false}
+  cookie: {maxAge: 60000, httpOnly: false}
 }));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
@@ -43,7 +43,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', 
 function(req, res) {
   console.log('req.session.log', req.session);
-  if (req.session.log) {
+  if (req.session.username) {
     res.render('index');
   } else {
     res.render('login');
@@ -65,7 +65,7 @@ function(req, res) {
 
 app.get('/login', 
 function(req, res) {
-  console.log('login rendering&&&&&&&&&&&&&&&&')
+  console.log('login rendering&&&&&&&&&&&&&&&&');
   res.render('login');
 });
 
@@ -149,24 +149,25 @@ function(req, res) {
         //salt and hash the incoming password
         //compare vid
         var hash = bcrypt.hashSync(req.body.password, user[0].salt);
-        console.log('req password', req.body.password);
-        console.log(hash);
         var fromDb = user[0].password;
-        console.log(fromDb);
-
         if (fromDb === hash) {
-          req.session.regenerate(function(err) { 
-            if (!err) {
-              req.session.log = true;
-              req.session.username = req.body.username;
-              console.log(req.session);
-              // res.writeHead({location: '/'});
-              // res.redirect('/');  //this passes the test but doesn't work
-              res.render('index');
-            } else { 
-             console.log('session did not regen');
-            }
-          });
+          req.session.log = true;
+          req.session.username = req.body.username;
+          console.log('session', req.session);
+          res.redirect('/');
+
+          // req.session.regenerate(function(err) { 
+          //   if (!err) {
+          //     req.session.log = true;
+          //     req.session.username = req.body.username;
+          //     console.log(req.session);
+          //     // res.writeHead({location: '/'});
+          //     // res.redirect('/');  //this passes the test but doesn't work
+          //     res.render('index');
+          //   } else { 
+          //     console.log('session did not regen');
+          //   }
+          // });
         }
       
       })
