@@ -3,6 +3,9 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 // var cookieParser = require('cookie-parser');
+// var cookieSession = require('cookie-session');
+var eSession = require('express-session');
+
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -15,6 +18,12 @@ var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
 
+app.use(eSession({
+  secret: 'cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {secure: true, maxAge: 60000, httpOnly: false}
+}));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
@@ -23,11 +32,23 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(express.cookieParser());
+// app.use(cookieParser());
+// app.use(cookieSession({
+//   name: 'shortSession',
+//   secret: '19879jsdklsld98ij933',
+//   test: 'do I exist?'
+// }));
+
 
 app.get('/', 
 function(req, res) {
-  res.render('index');
+  console.log('req.session.log', req.session);
+  if (req.session.log) {
+    res.render('index');
+  } else {
+    res.render('login');
+
+  }
 });
 
 app.get('/create',  
@@ -44,6 +65,7 @@ function(req, res) {
 
 app.get('/login', 
 function(req, res) {
+  console.log('login rendering&&&&&&&&&&&&&&&&')
   res.render('login');
 });
 
@@ -118,8 +140,7 @@ function(req, res) {
 
 app.post('/login', 
 function(req, res) {
-  
-  res.render('login');  //might be an issue here.  need to see what happens
+   
 
 
   db.knex('users')
@@ -128,12 +149,36 @@ function(req, res) {
         //salt and hash the incoming password
         //compare vid
         var hash = bcrypt.hashSync(req.body.password, user[0].salt);
-        bcrypt.compare(req.body.password, hash, function (err, results) {
-          //send the user to the index page
-        });
+        console.log('req password', req.body.password);
+        console.log(hash);
+        var fromDb = user[0].password;
+        console.log(fromDb);
+
+        if (fromDb === hash) {
+          req.session.regenerate(function(err) { 
+            if (!err) {
+              req.session.log = true;
+              req.session.username = req.body.username;
+              console.log(req.session);
+              // res.writeHead({location: '/'});
+              // res.redirect('/');  //this passes the test but doesn't work
+              res.render('index');
+            } else { 
+             console.log('session did not regen');
+            }
+          });
+        }
+      
       })
       .catch(function(error) { console.log(error); });
 
+
+        //Look into why this didn't work later***********
+      //   bcrypt.compare(fromDb, hash, function (err, results) {
+      //     if (!err) {
+      //       console.log(results);
+      //     }
+      //   });
 
 
 });

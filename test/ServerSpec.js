@@ -102,7 +102,7 @@ describe('', function() {
     });
 
     describe('Shortening links:', function() {
-this.timeout(5000);
+      //this.timeout(5000);
       var options = {
         'method': 'POST',
         'followAllRedirects': true,
@@ -301,7 +301,7 @@ this.timeout(5000);
           message: 'Failed to create test setup data'
         };
       });
-      
+
       new User({
         'username': 'Phillip',
         'password': 'Phillip'
