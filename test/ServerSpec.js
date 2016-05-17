@@ -156,14 +156,14 @@ describe('', function() {
 
       beforeEach(function(done) {
         // save a link to the database
-        link = new Link({
-          url: 'http://roflzoo.com/',
-          title: 'Funny pictures of animals, funny dog pictures',
-          baseUrl: 'http://127.0.0.1:4568'
-        });
-        link.save().then(function() {
-          done();
-        });
+      });
+      link = new Link({
+        url: 'http://roflzoo.com/',
+        title: 'Funny pictures of animals, funny dog pictures',
+        baseUrl: 'http://127.0.0.1:4568'
+      });
+      link.save().then(function() {
+        done();
       });
 
       it('Returns the same shortened code', function(done) {
@@ -184,7 +184,7 @@ describe('', function() {
         });
       });
 
-      xit('Shortcode redirects to correct url', function(done) {
+      it('Shortcode redirects to correct url', function(done) {
         var options = {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/' + link.get('code')
@@ -216,21 +216,21 @@ describe('', function() {
 
   describe('Privileged Access:', function() {
 
-    xit('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
+    it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
       });
     });
 
-    xit('Redirects to login page if a user tries to create a link and is not signed in', function(done) {
+    it('Redirects to login page if a user tries to create a link and is not signed in', function(done) {
       request('http://127.0.0.1:4568/create', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
       });
     });
 
-    xit('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
+    it('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
       request('http://127.0.0.1:4568/links', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
@@ -250,7 +250,7 @@ describe('', function() {
           message: 'Failed to create test setup data'
         };
       });
-          db.knex('users')
+    db.knex('users')
       .where('username', '=', 'Phillip')
       .del()
       .catch(function(error) {

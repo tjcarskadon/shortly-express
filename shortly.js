@@ -2,8 +2,6 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-// var cookieParser = require('cookie-parser');
-// var cookieSession = require('cookie-session');
 var session = require('express-session');
 
 
@@ -18,6 +16,7 @@ var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
 
+app.use(express.static(__dirname + '/public'));
 app.use(session({
   secret: 'cat',
   resave: true,
@@ -31,41 +30,45 @@ app.use(partials());
 app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/public'));
-// app.use(cookieParser());
-// app.use(cookieSession({
-//   name: 'shortSession',
-//   secret: '19879jsdklsld98ij933',
-//   test: 'do I exist?'
-// }));
+
 
 
 app.get('/', 
 function(req, res) {
-  console.log('req.session.log', req.session);
   if (req.session.username) {
     res.render('index');
   } else {
-    res.render('login');
+    res.redirect('/login');
 
   }
 });
 
 app.get('/create',  
 function(req, res) {
-  res.render('index');
+  if (req.session.username) {
+    res.render('index');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/links', 
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.status(200).send(links.models);
-  });
+
+  if (req.session.username) {
+    Links.reset().fetch().then(function(links) {
+      res.status(200).send(links.models);
+    });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/login', 
 function(req, res) {
-  console.log('login rendering&&&&&&&&&&&&&&&&');
+  if (req.session.username) {
+    req.session.destroy();
+  }
   res.render('login');
 });
 
@@ -79,12 +82,11 @@ function(req, res) {
 app.post('/signup', 
 function(req, res) {
   var uri = req.body.url;
-  console.log('REQ BODY POST', req.body);
 
   new User({ username: req.body.username}).fetch().then(function(found) {
     if (found) {
       //do something to tell the user they are already registered
-      console.log('signup found', found);
+      // console.log('signup found', found);
       res.status(200).send();
     } else {
       Users.create({
@@ -111,7 +113,7 @@ function(req, res) {
   }
 
   new Link({ url: uri }).fetch().then(function(found) {
-      console.log('I am found', found);
+    console.log('I am found', found);
     if (found) {
       res.status(200).send(found.attributes);
     } else {
